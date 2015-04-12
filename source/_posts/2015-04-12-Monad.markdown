@@ -1,0 +1,126 @@
+---
+layout: post
+title: "Monad"
+date: 2015-04-12 17:15:35 +0000
+comments: true
+published: false
+categories: 
+---
+
+Java 的 “int” 有哪些值?
+
+> -2147483648 .... -2 -1 0 1 2 .... 2147483647
+
+Java 的 “Integer” 有哪些值?
+
+> null + -2147483648 .... -2 -1 0 1 2 .... 2147483647
+
+如果我們有個可以傳回 int 的 function f:
+``` Java
+int f(...)
+```
+
+因為某些原因不見得能傳回 int (比方說查表/讀不一定存在的設定/parse一行文字中的數字等), 則我們可以改傳 Integer 回來, 並用 null 來代表失敗的 case:
+``` Java
+Integer f(...)
+```
+
+以往我們寫個從 int -> int 的 function 會寫成:
+``` Java
+int f(int x)
+```
+
+若把自己輸出和前一步傳來失敗的情形也考慮進來, 則會寫成:
+``` Java
+Integer f(Integer x)
+```
+
+如果不經判斷直接使用 x , 則很可能寫出 compile 會過, 但是跑起來會遇到 NullPointerException 的程式:
+``` Java
+Integer f(Integer x) {
+    return x + 1;
+}
+f(3); // 4
+f(null); // NullPointerException
+```
+
+所以 programmer 只好擔起記得要寫判斷的責任, 依照 input x 的結構, 寫出對應結構的程式:
+``` Java
+Integer f(Integer x) {
+    if (x == null) {
+        return ... // handle the "null" value of Integer
+    } else {
+        return ... // handle the "int" values of Integer
+    }
+}
+```
+
+在 input x 為 null 時, 我們想 return 什麼呢? 0? -1? 42? 最常見的選擇是 null:
+``` Java
+Integer f(Integer x) {
+   if (x == null) {
+       return null; // handle the "null" value of Integer
+   } else {
+       return ... // handle the "int" values of Integer
+   }
+}
+```
+
+處理 x 為 int 的這塊的邏輯可能很多變, 但大致上是處理 int 的輸入, 產生 Integer 的輸出:
+``` Java
+Integer f(Integer x) {
+  if (x == null) {
+      return null; // handle the "null" value of Integer
+  } else {
+      return yourLogic(x); // int -> Integer
+  }
+}
+Integer yourLogic(int x) { /* your logic here */ }
+```
+
+如果我們每次寫個 Integer -> Integer 的 function, 都要把除了 yourLogic(x) 之外固定不動的 if (x == null) { ... } 寫一遍, 就有點累贅了. 
+
+我們可以弄個叫 “bind” 的 template, 把其中會變化的 int -> Integer 部分繼承或當成一個function傳入.
+
+在 Java 8 前的寫法:
+``` Java
+abstract static class Bind {
+    Integer bind(Integer x) {
+        if (x == null) {
+            return null;
+        } else {
+            return yourLogic(x);
+        }
+    }
+    abstract Integer yourLogic(int x);
+}
+Integer f(Integer x) {
+    return new Bind() {
+        @Override
+        Integer yourLogic(int x) { /* your logic here */ }
+    }.bind(x);
+}
+```
+
+在 Java 8 之後的寫法:
+``` Java
+@FunctionalInterface
+interface IntToInteger {
+    int intToInteger(Integer x);
+}
+Integer bind(Integer x, IntToInteger yourLogic) {
+    if (x == null) {
+        return null;
+    } else {
+        return yourLogic.intToInteger(x);
+    }
+}
+Integer f(Integer x) {
+    return bind(x, this::yourLogic);
+}
+Integer yourLogic(int x) { /* your logic here */ }
+```
+
+回顧一下: 因為 Integer 結構上是 “null + int”, 所以當我們想寫個 Integer -> Integer 的 function 時, 如果就是想 null 進 null 出, 則可以把和結構有關而不太會動的 “bind” 拆出來, 這樣就不用每次寫重複的部分, 而只要把會改變的邏輯傳給 bind 就完成了.
+
+換句話說, 我們做的只是: 根據資料的結構, 抽出常見而重複的程式碼.

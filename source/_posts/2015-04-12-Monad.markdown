@@ -7,11 +7,11 @@ published: false
 categories: 
 ---
 
-Java 的 “int” 有哪些值?
+Java 的 "int" 有哪些值?
 
 > -2147483648 .... -2 -1 0 1 2 .... 2147483647
 
-Java 的 “Integer” 有哪些值?
+Java 的 "Integer" 有哪些值?
 
 > null + -2147483648 .... -2 -1 0 1 2 .... 2147483647
 
@@ -80,7 +80,7 @@ Integer yourLogic(int x) { /* your logic here */ }
 
 如果我們每次寫個 Integer -> Integer 的 function, 都要把除了 yourLogic(x) 之外固定不動的 if (x == null) { ... } 寫一遍, 就有點累贅了. 
 
-我們可以弄個叫 “bind” 的 template, 把其中會變化的 int -> Integer 部分繼承或當成一個function傳入.
+我們可以弄個叫 "bind" 的 template, 把其中會變化的 int -> Integer 部分繼承或當成一個function傳入.
 
 在 Java 8 前的寫法:
 ``` Java
@@ -121,6 +121,6 @@ Integer f(Integer x) {
 Integer yourLogic(int x) { /* your logic here */ }
 ```
 
-回顧一下: 因為 Integer 結構上是 “null + int”, 所以當我們想寫個 Integer -> Integer 的 function 時, 如果就是想 null 進 null 出, 則可以把和結構有關而不太會動的 “bind” 拆出來, 這樣就不用每次寫重複的部分, 而只要把會改變的邏輯傳給 bind 就完成了.
+回顧一下: 因為 Integer 結構上是 "null + int", 所以當我們想寫個 Integer -> Integer 的 function 時, 如果就是想 null 進 null 出, 則可以把和結構有關而不太會動的 "bind" 拆出來, 這樣就不用每次寫重複的部分, 而只要把會改變的邏輯傳給 bind 就完成了.
 
 換句話說, 我們做的只是: 根據資料的結構, 抽出常見而重複的程式碼.

@@ -124,3 +124,17 @@ Integer yourLogic(int x) { /* your logic here */ }
 回顧一下: 因為 Integer 結構上是 "null + int", 所以當我們想寫個 Integer -> Integer 的 function 時, 如果就是想 null 進 null 出, 則可以把和結構有關而不太會動的 "bind" 拆出來, 這樣就不用每次寫重複的部分, 而只要把會改變的邏輯傳給 bind 就完成了.
 
 換句話說, 我們做的只是: 根據資料的結構, 抽出常見而重複的程式碼.
+
+
+DB 查 Integer Integer Integer
+JSON 查 path
+gif 動畫
+bind 的body/內容在 Maybe 是共用的, 而其 type / signature 抽出來共用範圍更大
+Monad 是一個通用的招式(避用design pattern), 跨 type, 跨問題, 甚至跨語言
+把重複的部份抽出, 把不變和會變的部份分離
+Introduction: 可以用 Monad 解 Maybe / List / IO 等很多類問題
+
+
+
+
+https://wiki.haskell.org/All_About_Monads
